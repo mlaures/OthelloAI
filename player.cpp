@@ -54,7 +54,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 		Move* temp_move = *it;
 //		cerr << temp_move->x << " " << temp_move->y << endl;
 		copy->doMove(temp_move, side);
-		double score = -negamax(opponentSide, copy, MAX_DEPTH);
+		double score = -negamax(opponentSide, copy, MAX_DEPTH - 1);
 		if(score > best_score)
 		{
 			best_score = score;
@@ -84,7 +84,7 @@ double Player::negamax(Side cside, Board* board, int depth)
 			double score = -negamax((Side)!cside, copy, depth-1);
 			better = max (better, score);
 		}
-		cerr << "better = " << better << endl;
+//		cerr << "better = " << better << endl;
 		return better;
 	} else {
 		return negamax((Side)!cside, board, depth-1);
@@ -93,47 +93,47 @@ double Player::negamax(Side cside, Board* board, int depth)
 
 }
 
-double Player::minimax(Side curr_side, Board* board, int depth)
-{
-	this->testingMinimax = true;
-	if(depth == 0 && this->testingMinimax)
-		return board->getScoreSimple(curr_side);
-	else if(depth == 0 && !this->testingMinimax)
-		return curr_side == WHITE ? -board->getScore() : board->getScore();
-	vector<Move*>* avail_moves = board->getAvailableMoves(curr_side);
-	// TODO NOTE: if our heuristic for Black = -White, we can simplify
-	// the below code.
-	if(avail_moves->size() == 0)
-		return minimax((Side)!curr_side, board, depth - 1);
-	if(curr_side == this->side) // Choose the highest scoring option
-	{
-		double max_score = -MAX_DOUBLE;
-		for(vector<Move*>::iterator it = avail_moves->begin();
-				it != avail_moves->end(); it++)
-		{
-			Board* copy = board->copy();
-			copy->doMove(*it, curr_side);
-			double score = minimax((Side)!curr_side, copy, depth - 1);
-//			cerr << "In max, score = " << score << endl;
-			max_score = max(max_score, score);
-		}
-//		cerr << "max_score = " << max_score << endl;
-		return max_score;
-	}
-	else // Choose the lowest scoring option
-	{
-		double min_score = MAX_DOUBLE;
-
-		for(vector<Move*>::iterator it = avail_moves->begin();
-				it != avail_moves->end(); it++)
-		{
-			Board* copy = board->copy();
-			copy->doMove(*it, curr_side);
-			double score = minimax((Side)!curr_side, copy, depth - 1);
-//			cerr << "In min, score = " << score << endl;
-			min_score = min(min_score, score);
-		}
-//		cerr << "min_score = " << min_score << endl;
-		return min_score;
-	}
-}
+//double Player::minimax(Side curr_side, Board* board, int depth)
+//{
+//	this->testingMinimax = true;
+//	if(depth == 0 && this->testingMinimax)
+//		return board->getScoreSimple(curr_side);
+//	else if(depth == 0 && !this->testingMinimax)
+//		return curr_side == WHITE ? -board->getScore() : board->getScore();
+//	vector<Move*>* avail_moves = board->getAvailableMoves(curr_side);
+//	// TODO NOTE: if our heuristic for Black = -White, we can simplify
+//	// the below code.
+//	if(avail_moves->size() == 0)
+//		return minimax((Side)!curr_side, board, depth - 1);
+//	if(curr_side == this->side) // Choose the highest scoring option
+//	{
+//		double max_score = -MAX_DOUBLE;
+//		for(vector<Move*>::iterator it = avail_moves->begin();
+//				it != avail_moves->end(); it++)
+//		{
+//			Board* copy = board->copy();
+//			copy->doMove(*it, curr_side);
+//			double score = minimax((Side)!curr_side, copy, depth - 1);
+////			cerr << "In max, score = " << score << endl;
+//			max_score = max(max_score, score);
+//		}
+////		cerr << "max_score = " << max_score << endl;
+//		return max_score;
+//	}
+//	else // Choose the lowest scoring option
+//	{
+//		double min_score = MAX_DOUBLE;
+//
+//		for(vector<Move*>::iterator it = avail_moves->begin();
+//				it != avail_moves->end(); it++)
+//		{
+//			Board* copy = board->copy();
+//			copy->doMove(*it, curr_side);
+//			double score = minimax((Side)!curr_side, copy, depth - 1);
+////			cerr << "In min, score = " << score << endl;
+//			min_score = min(min_score, score);
+//		}
+////		cerr << "min_score = " << min_score << endl;
+//		return min_score;
+//	}
+//}
