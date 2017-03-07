@@ -54,7 +54,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 		Move* temp_move = *it;
 //		cerr << temp_move->x << " " << temp_move->y << endl;
 		copy->doMove(temp_move, side);
-		double score = minimax(opponentSide, copy, MAX_DEPTH);
+		double score = -negamax(opponentSide, copy, MAX_DEPTH);
 		if(score > best_score)
 		{
 			best_score = score;
@@ -65,13 +65,41 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     return best_move;
 }
 
+double Player::negamax(Side cside, Board* board, int depth)
+{
+	if(depth == 0 && this->testingMinimax)
+		return board->getScoreSimple(cside);
+	else if(depth == 0 && !this->testingMinimax)
+		return cside == WHITE ? -board->getScore() : board->getScore();
+
+	vector<Move*>* avail_moves = board->getAvailableMoves(cside);
+	double better = -MAX_DOUBLE;
+	if (avail_moves->size() != 0) 
+	{
+		for(vector<Move*>::iterator it = avail_moves->begin();
+					it != avail_moves->end(); it++)
+		{
+			Board* copy = board->copy();
+			copy->doMove(*it, cside);
+			double score = -negamax((Side)!cside, copy, depth-1);
+			better = max (better, score);
+		}
+		cerr << "better = " << better << endl;
+		return better;
+	} else {
+		return negamax((Side)!cside, board, depth-1);
+	}
+	
+
+}
+
 double Player::minimax(Side curr_side, Board* board, int depth)
 {
 	if(depth == 0 && this->testingMinimax)
-		return board->getScoreSimple(this->side);
+		return board->getScoreSimple(curr_side);
 	else if(depth == 0 && !this->testingMinimax)
 		return curr_side == WHITE ? -board->getScore() : board->getScore();
-	vector<Move*>* avail_moves = board->getAvailableMoves(side);
+	vector<Move*>* avail_moves = board->getAvailableMoves(curr_side);
 	// TODO NOTE: if our heuristic for Black = -White, we can simplify
 	// the below code.
 	if(curr_side == this->side) // Choose the highest scoring option
