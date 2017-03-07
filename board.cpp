@@ -203,21 +203,20 @@ double Board::getScoreSimple(Side side)
 												countWhite() - countBlack();
 }
 
-double Board::getScore(Side side)
+double Board::getScore() // Assume black
 {
 	double sum = 0;
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
-			Side stone_side = (Side)(occupied(i, j) && (black[i + 8*j] == side));
-			if (stone_side == side)
+			int color = !(occupied(i, j))? 0 : (black[i + 8*j] ? 1 : -1);
+			if (color != 0)
 			{
-				int invert = (stone_side == side) ? 1 : -1;
 				if((i == 0 || i == 7) && (j == 0 || j == 7)) // corners
-					sum += 5 * invert;
+					sum += 5 * color;
 				else if(i == 0 || i == 7 || j == 0 || j == 7) // edges
-					sum += 3 * invert;
+					sum += 3 * color;
 				else
-					sum += invert;
+					sum += color;
 			}
 		}
 	}

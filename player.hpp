@@ -7,7 +7,7 @@
 #include <limits>
 using namespace std;
 
-#define MAX_DEPTH 4
+#define MAX_DEPTH 2
 #define MAX_DOUBLE numeric_limits<double>::max()
 
 //

@@ -32,7 +32,7 @@ public:
     int countWhite();
 
     double getScoreSimple(Side side);
-    double getScore(Side side);
+    double getScore();
 
     void setBoard(char data[]);
 };
