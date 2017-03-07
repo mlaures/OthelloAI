@@ -76,7 +76,7 @@ double Player::minimax(Side curr_side, Board* board, int depth)
 	// the below code.
 	if(curr_side == this->side) // Choose the highest scoring option
 	{
-		double max_score = MAX_DOUBLE;
+		double max_score = -MAX_DOUBLE;
 		for(vector<Move*>::iterator it = avail_moves->begin();
 				it != avail_moves->end(); it++)
 		{
