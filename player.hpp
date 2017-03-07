@@ -25,6 +25,8 @@ public:
 
     Move *doMove(Move *opponentsMove, int msLeft);
     double minimax(Side side, Board* board, int depth);
+    double negamax(Side side, Board* board, int depth);
+
     // Flag to tell if the player is running within the test_minimax context
     bool testingMinimax;
     Side side;
