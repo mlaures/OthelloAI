@@ -8,6 +8,8 @@ all: $(PLAYERNAME) testgame
 $(PLAYERNAME): $(OBJS) wrapper.o
 	$(CC) -o $@ $^
 
+$(PLAYERNAME): player.hpp
+
 testgame: testgame.o
 	$(CC) -o $@ $^
 

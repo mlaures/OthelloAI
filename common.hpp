@@ -2,7 +2,7 @@
 #define __COMMON_H__
 
 enum Side { 
-    WHITE, BLACK
+    WHITE = 0, BLACK = 1
 };
 
 class Move {

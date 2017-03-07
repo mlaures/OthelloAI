@@ -8,7 +8,9 @@
 Player::Player(Side side) {
     // Will be set to true in test_minimax.cpp.
     testingMinimax = false;
-
+    board = new Board();
+    this->side = side;
+    this->opponentSide = (side == BLACK)? WHITE : BLACK;
     /*
      * TODO: Do any initialization you need to do here (setting up the board,
      * precalculating things, etc.) However, remember that you will only have
@@ -36,9 +38,68 @@ Player::~Player() {
  * return nullptr.
  */
 Move *Player::doMove(Move *opponentsMove, int msLeft) {
-    /*
-     * TODO: Implement how moves your AI should play here. You should first
-     * process the opponent's opponents move before calculating your own move
-     */
-    return nullptr;
+
+	if(opponentsMove != nullptr)
+		board->doMove(opponentsMove, opponentSide);
+	vector<Move*>* avail_moves = board->getAvailableMoves(side);
+	int size = (int) avail_moves->size();
+	if(size == 0)
+		return nullptr; // must pass turn
+	Move* best_move = nullptr;
+	double best_score = -MAX_DOUBLE;
+	for(vector<Move*>::iterator it = avail_moves->begin();
+			it != avail_moves->end(); ++it)
+	{
+		Board* copy = board->copy();
+		Move* temp_move = *it;
+//		cerr << temp_move->x << " " << temp_move->y << endl;
+		copy->doMove(temp_move, side);
+		double score = minimax(opponentSide, copy, MAX_DEPTH);
+		if(score > best_score)
+		{
+			best_score = score;
+			best_move = temp_move;
+		}
+	}
+	board->doMove(best_move, side);
+    return best_move;
+}
+
+double Player::minimax(Side curr_side, Board* board, int depth)
+{
+	if(depth == 0 && this->testingMinimax)
+		return board->getScoreSimple(this->side);
+	else if(depth == 0 && !this->testingMinimax)
+		return board->getScore(this->side);
+	vector<Move*>* avail_moves = board->getAvailableMoves(side);
+	// TODO NOTE: if our heuristic for Black = -White, we can simplify
+	// the below code.
+	if(curr_side == this->side) // Choose the highest scoring option
+	{
+		double max_score = MAX_DOUBLE;
+		for(vector<Move*>::iterator it = avail_moves->begin();
+				it != avail_moves->end(); it++)
+		{
+			Board* copy = board->copy();
+			copy->doMove(*it, curr_side);
+			double score = minimax((Side)!curr_side, copy, depth - 1);
+//			cerr << "max_score = " << score << endl;
+			max_score = max(max_score, score);
+		}
+		return max_score;
+	}
+	else // Choose the lowest scoring option
+	{
+		double min_score = MAX_DOUBLE;
+		for(vector<Move*>::iterator it = avail_moves->begin();
+				it != avail_moves->end(); it++)
+		{
+			Board* copy = board->copy();
+			copy->doMove(*it, curr_side);
+			double score = minimax((Side)!curr_side, copy, depth - 1);
+//			cerr << "min_score = " << score << endl;
+			min_score = min(min_score, score);
+		}
+		return min_score;
+	}
 }

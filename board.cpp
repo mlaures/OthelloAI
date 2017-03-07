@@ -101,6 +101,24 @@ bool Board::checkMove(Move *m, Side side) {
     return false;
 }
 
+/**
+ * @return: a vector of all possible moves for Side side.
+ */
+vector<Move*>* Board::getAvailableMoves(Side side)
+{
+	vector<Move*>* ret = new vector<Move*>();
+	for (int i = 0; i < 8; i++) {
+		for (int j = 0; j < 8; j++) {
+			Move* move = new Move(i, j);
+			if (checkMove(move, side))
+			{
+				ret->push_back(move);
+			}
+		}
+	}
+	return ret;
+}
+
 /*
  * Modifies the board to reflect the specified move.
  */
@@ -177,4 +195,31 @@ void Board::setBoard(char data[]) {
             taken.set(i);
         }
     }
+}
+
+double Board::getScoreSimple(Side side)
+{
+	return (side == BLACK) ? countBlack() - countWhite() :
+												countWhite() - countBlack();
+}
+
+double Board::getScore(Side side)
+{
+	double sum = 0;
+	for (int i = 0; i < 8; i++) {
+		for (int j = 0; j < 8; j++) {
+			Side stone_side = (Side)(occupied(i, j) && (black[i + 8*j] == side));
+			if (stone_side == side)
+			{
+				int invert = (stone_side == side) ? 1 : -1;
+				if((i == 0 || i == 7) && (j == 0 || j == 7)) // corners
+					sum += 5 * invert;
+				else if(i == 0 || i == 7 || j == 0 || j == 7) // edges
+					sum += 3 * invert;
+				else
+					sum += invert;
+			}
+		}
+	}
+	return sum;
 }
