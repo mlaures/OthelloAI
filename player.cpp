@@ -171,7 +171,7 @@ double Player::alphabeta(Side cside, Board* board, int depth,
 			{
 				Board* copy = board->copy();
 				copy->doMove(*it, cside);
-				double score = -negamax((Side)!cside, copy, depth-1);
+				double score = alphabeta((Side)!cside, copy, depth-1, alpha, beta);
 				better = max (better, score);
 				alpha = max(alpha, better);
 				if (beta <= alpha)
@@ -187,7 +187,7 @@ double Player::alphabeta(Side cside, Board* board, int depth,
 			{
 				Board* copy = board->copy();
 				copy->doMove(*it, cside);
-				double score = negamax((Side)!cside, copy, depth-1);
+				double score = alphabeta((Side)!cside, copy, depth-1, alpha, beta);
 				better = min (better, score);
 				beta = min (beta, better);
 				if (beta <= alpha)
@@ -197,7 +197,7 @@ double Player::alphabeta(Side cside, Board* board, int depth,
 		}
 	
 	} else {
-		return negamax((Side)!cside, board, depth-1);
+		return alphabeta((Side)!cside, board, depth-1, alpha, beta);
 	}
 
 }

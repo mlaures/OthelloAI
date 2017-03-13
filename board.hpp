@@ -1,6 +1,8 @@
 #ifndef __BOARD_H__
 #define __BOARD_H__
 
+#define BSINDEX(x, y) (y + 8 * x)
+
 #include <bitset>
 #include "common.hpp"
 #include <vector>
