@@ -17,15 +17,11 @@ Player::Player(Side side) {
     board = new Board();
     this->side = side;
     this->opponentSide = (side == BLACK)? WHITE : BLACK;
-    this->size = 3;
-    this->heuristic_coeffs = new double[size];
-    heuristic_coeffs[0] = 80.6953;
-    heuristic_coeffs[1] = 31.6103;
-    heuristic_coeffs[2] = 26.5006;
-//    for(int i = 0; i < size; i++)
-//    {
-//		heuristic_coeffs[i] = fRand(LOWER, UPPER);
-//    }
+    this->heuristic_coeffs = new double[NUMCOEFFS];
+    for(int i = 0; i < NUMCOEFFS; i++)
+    {
+		heuristic_coeffs[i] = fRand(LOWER, UPPER);
+    }
     num_wins = 0;
     /*
      * TODO: Do any initialization you need to do here (setting up the board,
@@ -46,7 +42,6 @@ Player::Player(Side side, double* heuristic_coeffs, int size) {
     this->side = side;
     this->opponentSide = (side == BLACK)? WHITE : BLACK;
     this->heuristic_coeffs = heuristic_coeffs;
-    this->size = size;
     num_wins = 0;
     /*
      * TODO: Do any initialization you need to do here (setting up the board,
@@ -59,6 +54,8 @@ Player::Player(Side side, double* heuristic_coeffs, int size) {
  * Destructor for the player.
  */
 Player::~Player() {
+	delete[] heuristic_coeffs;
+	delete board;
 }
 
 /*

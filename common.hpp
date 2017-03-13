@@ -2,6 +2,8 @@
 #define __COMMON_H___
 
 #include <cstdlib>
+#define NUMCOEFFS 64
+
 
 enum Side { 
     WHITE = 0, BLACK = 1

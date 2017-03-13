@@ -6,9 +6,9 @@
 #include <algorithm>
 
 #define NUMPLAYERS 10
-#define NUMCOEFFS 3
-#define PROB_MUTATE 0.03
-#define PROB_SEX 0.20
+#define VARIABILITY 2
+#define PROB_MUTATE 0.15
+#define PROB_MIX 0.15
 #define NUMGENERATIONS 100
 
 
@@ -79,7 +79,7 @@ vector<Player*> createNewPlayers(vector<Player*> &players)
 				continue;
 			}
 			// Genetic mixing
-			else if(random < PROB_MUTATE + PROB_SEX)
+			else if(random < PROB_MUTATE + PROB_MIX)
 			{
 				double coeff1 = getRandomPlayersHeuristic(players, player_weights, j);
 				double coeff2 = getRandomPlayersHeuristic(players, player_weights, j);
@@ -90,19 +90,22 @@ vector<Player*> createNewPlayers(vector<Player*> &players)
 			{
 				heuristics[j] = getRandomPlayersHeuristic(players, player_weights, j);
 			}
+			if(random < 0.5)
+				heuristics[j] += fRand(-VARIABILITY, VARIABILITY);
 		}
 		Player* player = new Player(BLACK, heuristics, NUMCOEFFS);
 		ret_players.push_back(player);
 	}
 	for(int i = 0; i < NUMPLAYERS; i++)
 		delete players[i];
+	delete[] player_weights;
 	return ret_players;
 }
 
 int main(int argc, char** argv)
 {
 	srand(time(NULL));
-	Player* reset = new Player(BLACK);
+	Board* reset = new Board();
 	vector<Player*> players;
 
 	// Generate random players for initialization
@@ -123,8 +126,8 @@ int main(int argc, char** argv)
 				int win = play(players[i], players[j]);
 				delete players[i]->board;
 				delete players[j]->board;
-				players[i]->board = reset->board->copy();
-				players[j]->board = reset->board->copy();
+				players[i]->board = reset->copy();
+				players[j]->board = reset->copy();
 				// player[i] = black, player[j] = white
 				if(win == 0)
 				{
@@ -148,4 +151,7 @@ int main(int argc, char** argv)
 		}
 		players = createNewPlayers(players);
 	}
+	for(int i = 0; i < NUMPLAYERS; i++)
+		delete players[i];
+	delete reset;
 }

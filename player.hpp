@@ -43,7 +43,6 @@ public:
     Side opponentSide;
     Board* board;
     double* heuristic_coeffs;
-    int size;
     // Used for PlayerEvolution
     int num_wins;
 

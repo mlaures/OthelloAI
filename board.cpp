@@ -226,9 +226,6 @@ double Board::getScore() // Assume black
 double Board::getScore(double* heuristic_coeffs, int size) // Assume black
 {
 	double sum = 0;
-	double x1 = *(heuristic_coeffs);
-	double x2 = *(++heuristic_coeffs);
-	double x3 = *(++heuristic_coeffs);
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
 			int color = !(occupied(i, j))? 0 : (black[i + 8*j] ? 1 : -1);
@@ -245,3 +242,26 @@ double Board::getScore(double* heuristic_coeffs, int size) // Assume black
 	}
 	return sum;
 }
+
+//double Board::getScore(double* heuristic_coeffs, int size) // Assume black
+//{
+//	double sum = 0;
+//	double x1 = *(heuristic_coeffs);
+//	double x2 = *(++heuristic_coeffs);
+//	double x3 = *(++heuristic_coeffs);
+//	for (int i = 0; i < 8; i++) {
+//		for (int j = 0; j < 8; j++) {
+//			int color = !(occupied(i, j))? 0 : (black[i + 8*j] ? 1 : -1);
+//			if (color != 0)
+//			{
+//				if((i == 0 || i == 7) && (j == 0 || j == 7)) // corners
+//					sum += x1 * color;
+//				else if(i == 0 || i == 7 || j == 0 || j == 7) // edges
+//					sum += x2 * color;
+//				else
+//					sum += x3 * color;
+//			}
+//		}
+//	}
+//	return sum;
+//}
