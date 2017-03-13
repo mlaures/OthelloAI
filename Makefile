@@ -1,6 +1,6 @@
 CC          = g++
 CFLAGS      = -std=c++11 -Wall -pedantic -ggdb
-OBJS        = player.o board.o
+OBJS        = player.o board.o 
 PLAYERNAME  = icantdecide
 
 all: $(PLAYERNAME) testgame
@@ -9,6 +9,9 @@ $(PLAYERNAME): $(OBJS) wrapper.o
 	$(CC) -o $@ $^
 
 $(PLAYERNAME): player.hpp
+
+simulator: $(OBJS) PlayerEvolutionSimulator.o
+	$(CC) -o $@ $^
 
 testgame: testgame.o
 	$(CC) -o $@ $^

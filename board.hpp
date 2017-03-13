@@ -33,6 +33,7 @@ public:
 
     double getScoreSimple(Side side);
     double getScore();
+    double getScore(double* heuristic_coeffs, int size);
 
     void setBoard(char data[]);
 };

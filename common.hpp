@@ -1,5 +1,7 @@
-#ifndef __COMMON_H__
-#define __COMMON_H__
+#ifndef __COMMON_H___
+#define __COMMON_H___
+
+#include <cstdlib>
 
 enum Side { 
     WHITE = 0, BLACK = 1

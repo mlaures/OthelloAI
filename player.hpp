@@ -5,10 +5,16 @@
 #include "common.hpp"
 #include "board.hpp"
 #include <limits>
+#include <cstdlib>
+//#include <random>
 using namespace std;
 
 #define MAX_DEPTH 2
 #define MAX_DOUBLE numeric_limits<double>::max()
+#define LOWER 0
+#define UPPER 100
+
+double fRand(double fMin, double fMax);
 
 //
 //struct MoveAndScore
@@ -21,17 +27,28 @@ class Player {
 
 public:
     Player(Side side);
+    Player(Side side, double* heuristic_coeffs, int size);
     ~Player();
 
     Move *doMove(Move *opponentsMove, int msLeft);
     //double minimax(Side side, Board* board, int depth);
     double negamax(Side side, Board* board, int depth);
+    void setSide(Side side);
 
     // Flag to tell if the player is running within the test_minimax context
     bool testingMinimax;
     Side side;
     Side opponentSide;
     Board* board;
+    double* heuristic_coeffs;
+    int size;
+    // Used for PlayerEvolution
+    int num_wins;
+
+    bool operator < (const Player& player) const
+	{
+		return (num_wins < player.num_wins);
+	}
 };
 
 #endif

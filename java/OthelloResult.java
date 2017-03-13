@@ -49,11 +49,17 @@ public class OthelloResult implements Serializable
 
       if( (conclusion == NORMAL_CONCLUSION && blackScore > whiteScore)
         || conclusion == WHITE_ERROR_CONCLUSION)
-         return OthelloSide.BLACK;
+      {
+    	  System.out.println("0");
+    	  return OthelloSide.BLACK; 
+      }
       else if(
          ( conclusion == NORMAL_CONCLUSION && whiteScore > blackScore)
         || conclusion == BLACK_ERROR_CONCLUSION)
+      {
+    	  System.out.println("1");
          return OthelloSide.WHITE;
+      }
       else
          return null;
    }

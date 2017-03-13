@@ -41,7 +41,12 @@ int main(int argc, char *argv[]) {
         // Delete move objects.
         if (opponentsMove != nullptr) delete opponentsMove;
         if (playersMove != nullptr) delete playersMove;
+
+        if(player->board->isDone())
+        	cerr << "final score: " << player->board->getScoreSimple(BLACK) << endl;
     }
+
+    cerr << "final score2: " << player->board->getScore() << endl;
 
     return 0;
 }

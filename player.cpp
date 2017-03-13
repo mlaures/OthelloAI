@@ -1,5 +1,11 @@
 #include "player.hpp"
 
+double fRand(double fMin, double fMax)
+{
+    double f = (double)rand() / RAND_MAX;
+    return fMin + f * (fMax - fMin);
+}
+
 /*
  * Constructor for the player; initialize everything here. The side your AI is
  * on (BLACK or WHITE) is passed in as "side". The constructor must finish
@@ -7,10 +13,41 @@
  */
 Player::Player(Side side) {
     // Will be set to true in test_minimax.cpp.
-    testingMinimax = false;
+	testingMinimax = false;
     board = new Board();
     this->side = side;
     this->opponentSide = (side == BLACK)? WHITE : BLACK;
+    this->size = 3;
+    this->heuristic_coeffs = new double[size];
+    heuristic_coeffs[0] = 80.6953;
+    heuristic_coeffs[1] = 31.6103;
+    heuristic_coeffs[2] = 26.5006;
+//    for(int i = 0; i < size; i++)
+//    {
+//		heuristic_coeffs[i] = fRand(LOWER, UPPER);
+//    }
+    num_wins = 0;
+    /*
+     * TODO: Do any initialization you need to do here (setting up the board,
+     * precalculating things, etc.) However, remember that you will only have
+     * 30 seconds.
+     */
+}
+
+/*
+ * Constructor for the player; initialize everything here. The side your AI is
+ * on (BLACK or WHITE) is passed in as "side". The constructor must finish
+ * within 30 seconds.
+ */
+Player::Player(Side side, double* heuristic_coeffs, int size) {
+    // Will be set to true in test_minimax.cpp.
+	testingMinimax = false;
+    board = new Board();
+    this->side = side;
+    this->opponentSide = (side == BLACK)? WHITE : BLACK;
+    this->heuristic_coeffs = heuristic_coeffs;
+    this->size = size;
+    num_wins = 0;
     /*
      * TODO: Do any initialization you need to do here (setting up the board,
      * precalculating things, etc.) However, remember that you will only have
@@ -65,12 +102,19 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     return best_move;
 }
 
+void Player::setSide(Side side)
+{
+	this->side = side;
+	this->opponentSide = (side == BLACK)? WHITE : BLACK;
+}
+
 double Player::negamax(Side cside, Board* board, int depth)
 {
 	if(depth == 0 && this->testingMinimax)
 		return board->getScoreSimple(cside);
 	else if(depth == 0 && !this->testingMinimax)
-		return cside == WHITE ? -board->getScore() : board->getScore();
+		return cside == WHITE ? -board->getScore(heuristic_coeffs, size)
+				: board->getScore(heuristic_coeffs, size);
 
 	vector<Move*>* avail_moves = board->getAvailableMoves(cside);
 	double better = -MAX_DOUBLE;
