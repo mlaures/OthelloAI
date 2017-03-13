@@ -9,7 +9,7 @@
 //#include <random>
 using namespace std;
 
-#define MAX_DEPTH 2
+#define MAX_DEPTH 5
 #define MAX_DOUBLE numeric_limits<double>::max()
 #define LOWER 0
 #define UPPER 100
@@ -33,6 +33,8 @@ public:
     Move *doMove(Move *opponentsMove, int msLeft);
     //double minimax(Side side, Board* board, int depth);
     double negamax(Side side, Board* board, int depth);
+    double alphabeta(Side cside, Board* board, int depth,
+		double alpha, double beta);
     void setSide(Side side);
 
     // Flag to tell if the player is running within the test_minimax context
