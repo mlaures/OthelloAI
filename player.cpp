@@ -128,8 +128,8 @@ double Player::negamax(Side cside, Board* board, int depth)
 	if(depth == 0 && this->testingMinimax)
 		return board->getScoreSimple(cside);
 	else if(depth == 0 && !this->testingMinimax)
-		return cside == WHITE ? -board->getScore(heuristic_coeffs, size)
-				: board->getScore(heuristic_coeffs, size);
+		return cside == WHITE ? -board->getScore(heuristic_coeffs, NUMCOEFFS)
+				: board->getScore(heuristic_coeffs, NUMCOEFFS);
 
 	vector<Move*>* avail_moves = board->getAvailableMoves(cside);
 	double better = -MAX_DOUBLE;

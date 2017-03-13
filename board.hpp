@@ -4,13 +4,14 @@
 #include <bitset>
 #include "common.hpp"
 #include <vector>
+#define BOARD_SIZE 64
 using namespace std;
 
 class Board {
 
 private:
-    bitset<64> black;
-    bitset<64> taken;
+    bitset<BOARD_SIZE> black;
+    bitset<BOARD_SIZE> taken;
 
     bool occupied(int x, int y);
     bool get(Side side, int x, int y);

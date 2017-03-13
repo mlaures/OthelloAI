@@ -226,18 +226,11 @@ double Board::getScore() // Assume black
 double Board::getScore(double* heuristic_coeffs, int size) // Assume black
 {
 	double sum = 0;
-	for (int i = 0; i < 8; i++) {
-		for (int j = 0; j < 8; j++) {
-			int color = !(occupied(i, j))? 0 : (black[i + 8*j] ? 1 : -1);
-			if (color != 0)
-			{
-				if((i == 0 || i == 7) && (j == 0 || j == 7)) // corners
-					sum += x1 * color;
-				else if(i == 0 || i == 7 || j == 0 || j == 7) // edges
-					sum += x2 * color;
-				else
-					sum += x3 * color;
-			}
+	for (int i = 0; i < BOARD_SIZE; i++) {
+		int color = !(taken[i])? 0 : (black[i] ? 1 : -1);
+		if (color != 0)
+		{
+			sum += heuristic_coeffs[i] * color;
 		}
 	}
 	return sum;
