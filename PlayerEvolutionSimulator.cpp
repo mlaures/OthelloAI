@@ -121,6 +121,8 @@ int main(int argc, char** argv)
 				if(i == j)
 					continue;
 				int win = play(players[i], players[j]);
+				delete players[i]->board;
+				delete players[j]->board;
 				players[i]->board = reset->board->copy();
 				players[j]->board = reset->board->copy();
 				// player[i] = black, player[j] = white
