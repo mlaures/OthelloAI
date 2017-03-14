@@ -114,6 +114,8 @@ vector<Move*>* Board::getAvailableMoves(Side side)
 			{
 				ret->push_back(move);
 			}
+			else
+				delete move;
 		}
 	}
 	return ret;

@@ -10,7 +10,7 @@
 //#include <random>
 using namespace std;
 
-#define MAX_DEPTH 2
+#define MAX_DEPTH 5
 #define MAX_DOUBLE numeric_limits<double>::max()
 #define LOWER 0
 #define UPPER 100
@@ -28,6 +28,7 @@ class Player {
 
 public:
     Player(Side side);
+    Player(Side side, bool random);
     Player(Side side, double* heuristic_coeffs, int size);
     ~Player();
 

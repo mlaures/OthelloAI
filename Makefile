@@ -1,5 +1,5 @@
 CC          = g++
-CFLAGS      = -std=c++11 -Wall -pedantic -ggdb -lpthread
+CFLAGS      = -std=c++11 -Wall -pedantic -ggdb -Wl,--no-as-needed -lpthread -pthread
 OBJS        = player.o board.o 
 PLAYERNAME  = icantdecide
 
