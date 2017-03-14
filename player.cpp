@@ -18,10 +18,10 @@ Player::Player(Side side) {
     this->side = side;
     this->opponentSide = (side == BLACK)? WHITE : BLACK;
     this->heuristic_coeffs = new double[NUMCOEFFS];
-    for(int i = 0; i < NUMCOEFFS; i++)
-    {
+   for(int i = 0; i < NUMCOEFFS; i++)
+   {
 		heuristic_coeffs[i] = fRand(LOWER, UPPER);
-    }
+   }
     num_wins = 0;
     /*
      * TODO: Do any initialization you need to do here (setting up the board,
@@ -54,8 +54,6 @@ Player::Player(Side side, double* heuristic_coeffs, int size) {
  * Destructor for the player.
  */
 Player::~Player() {
-	delete[] heuristic_coeffs;
-	delete board;
 }
 
 /*
@@ -81,6 +79,8 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 		return nullptr; // must pass turn
 	Move* best_move = nullptr;
 
+	double ab[2] {-MAX_DOUBLE, MAX_DOUBLE};
+
 	double best_score = -MAX_DOUBLE;
 	for(vector<Move*>::iterator it = avail_moves->begin();
 		it != avail_moves->end(); it++)
@@ -88,8 +88,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 		Board* copy = board->copy();
 		Move* temp_move = *it;
 		copy->doMove(temp_move, side);
-		double score = -negamax(opponentSide, copy, MAX_DEPTH - 1);
-//			-MAX_DOUBLE, MAX_DOUBLE);
+		double score = -nalphabeta(opponentSide, copy, MAX_DEPTH - 1, ab);
 		if(score > best_score)
 	 	{
 	 		best_score = score;
@@ -123,7 +122,7 @@ void Player::setSide(Side side)
 	this->opponentSide = (side == BLACK)? WHITE : BLACK;
 }
 
-double Player::negamax(Side cside, Board* board, int depth)
+double Player::nalphabeta(Side cside, Board* board, int depth, double ab[])
 {
 	if(depth == 0 && this->testingMinimax)
 		return board->getScoreSimple(cside);
@@ -140,67 +139,69 @@ double Player::negamax(Side cside, Board* board, int depth)
 		{
 			Board* copy = board->copy();
 			copy->doMove(*it, cside);
-			double score = -negamax((Side)!cside, copy, depth-1);
+			double score = -nalphabeta((Side)!cside, copy, depth-1, ab);
 			better = max (better, score);
+			if (cside == this->side)
+			{
+				ab[0] = max (ab[0], better);
+			} else
+			{
+				ab[1] = max (ab[1], better);
+			}
+			if (ab[1] <= ab[0])
+				break;
 		}
 //		cerr << "better = " << better << endl;
 		return better;
 	} else {
-		return negamax((Side)!cside, board, depth-1);
+		return nalphabeta((Side)!cside, board, depth-1, ab);
 	}
-	
-
 }
 
-double Player::alphabeta(Side cside, Board* board, int depth,
-	double alpha, double beta)
-{
-	if(depth == 0) /*&& this->testingMinimax)*/
-		return board->getScoreSimple(cside);
-	/*else if(depth == 0 && !this->testingMinimax)
-		return cside == WHITE ? -board->getScore() : board->getScore();
-*/
-	vector<Move*>* avail_moves = board->getAvailableMoves(cside);
-	if (avail_moves->size() != 0) 
-	{
-		if (cside == this->side) 
-		{
-			double better = -MAX_DOUBLE;
-			for(vector<Move*>::iterator it = avail_moves->begin();
-				it != avail_moves->end(); it++)
-			{
-				Board* copy = board->copy();
-				copy->doMove(*it, cside);
-				double score = alphabeta((Side)!cside, copy, depth-1, alpha, beta);
-				better = max (better, score);
-				alpha = max(alpha, better);
-				if (beta <= alpha)
-					break;
-
-			}
-			return better;
-		} else
-		{
-			double better = MAX_DOUBLE;
-			for(vector<Move*>::iterator it = avail_moves->begin();
-					it != avail_moves->end(); it++)
-			{
-				Board* copy = board->copy();
-				copy->doMove(*it, cside);
-				double score = -alphabeta((Side)!cside, copy, depth-1, alpha, beta);
-				better = min (better, score);
-				beta = min (beta, better);
-				if (beta <= alpha)
-					break;
-			}
-			return better;
-		}
+//double Player::alphabeta(Side cside, Board* board, int depth,
+//	double alpha, double beta)
+//{
+//	if(depth == 0) /*&& this->testingMinimax)*/
+//		return board->getScoreSimple(cside);
+//	/*else if(depth == 0 && !this->testingMinimax)
+//		return cside == WHITE ? -board->getScore() : board->getScore();
+//*/
+//	vector<Move*>* avail_moves = board->getAvailableMoves(cside);
+//	if (avail_moves->size() != 0)
+//	{
+//		if (cside == this->side)
+//		{
+//			double better = -MAX_DOUBLE;
+//			for(vector<Move*>::iterator it = avail_moves->begin();
+//				it != avail_moves->end(); it++)
+//			{
+//				Board* copy = board->copy();
+//				copy->doMove(*it, cside);
+//				double score = alphabeta((Side)!cside, copy, depth-1, alpha, beta);
+//				better = max (better, score);
+//				alpha = max(alpha, better);
+//				if (beta <= alpha)
+//					break;
+//
+//			}
+//			return better;
+//		} else
+//		{
+//			double better = MAX_DOUBLE;
+//			for(vector<Move*>::iterator it = avail_moves->begin();
+//					it != avail_moves->end(); it++)
+//			{
+//				Board* copy = board->copy();
+//				copy->doMove(*it, cside);
+//				double score = -alphabeta((Side)!cside, copy, depth-1, alpha, beta);
+//				better = min (better, score);
+//				beta = min (beta, better);
+//				if (beta <= alpha)
+//					break;
+//			}
+//			return better;
+//		}
 	
-	} else {
-		return alphabeta((Side)!cside, board, depth-1, alpha, beta);
-	}
-
-}
 
 //double Player::minimax(Side curr_side, Board* board, int depth)
 //{

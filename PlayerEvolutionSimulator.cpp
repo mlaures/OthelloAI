@@ -5,7 +5,7 @@
 #include <vector>
 #include <algorithm>
 
-#define NUMPLAYERS 30
+#define NUMPLAYERS 100
 #define VARIABILITY 2
 #define PROB_MUTATE 0.15
 #define PROB_MIX 0.15
@@ -59,7 +59,6 @@ double getRandomPlayersHeuristic(vector<Player*> &players, double weights[],
 vector<Player*> createNewPlayers(vector<Player*> &players)
 {
 	vector<Player*> ret_players;
-	sort(players.begin(), players.end());
 	double *player_weights = new double[NUMPLAYERS];
 	double total_wins = (NUMPLAYERS - 1) * (NUMPLAYERS);
 	for(int i = 0; i < NUMPLAYERS; i++)
@@ -113,41 +112,51 @@ int main(int argc, char** argv)
 	{
 		players.push_back(new Player(BLACK));
 	}
-
 	int num_generations = 0;
 	while(num_generations++ < NUMGENERATIONS)
 	{
+		queue<pair<Player*, Player*>> q;
 		for(int i = 0; i < NUMPLAYERS; i++)
 		{
 			for(int j = 0; j < NUMPLAYERS; j++)
 			{
 				if(i == j)
 					continue;
-				int win = play(players[i], players[j]);
-				delete players[i]->board;
-				delete players[j]->board;
-				players[i]->board = reset->copy();
-				players[j]->board = reset->copy();
-				// player[i] = black, player[j] = white
-				if(win == 0)
-				{
-					players[i]->num_wins++;
-				}
-				else if(win == 1)
-				{
-					players[j]->num_wins++;
-				}
+				q.push(make_pair(players[i], players[j]));
 			}
 		}
+		while(!q.empty())
+		{
+			pair<Player*, Player*> pair_players = q.pop();
+			int win = play(pair_players.first, pair_players.second);
+			delete pair_players.first->board;
+			delete pair_players.second->board;
+			pair_players.first->board = reset->copy();
+			pair_players.second->board = reset->copy();
+			// player[i] = black, player[j] = white
+			if(win == 0)
+			{
+				pair_players.first->num_wins++;
+			}
+			else if(win == 1)
+			{
+				pair_players.second->num_wins++;
+			}
+		}
+		int max_wins = 0;
+		Player* max_player = nullptr;
 		for(int i = 0; i < NUMPLAYERS; i++)
 		{
-			cout << "Player " << i << " has " << players[i]->num_wins << " wins. " << endl;
-			cout << "Parameters: ";
-			for(int j = 0; j < NUMCOEFFS; j++)
+			if(players[i]->num_wins > max_wins)
 			{
-				cout << players[i]->heuristic_coeffs[j] << " ";
+				max_wins = players[i]->num_wins;
+				max_player = players[i];
 			}
 			cout << endl;
+		}
+		for(int j = 0; j < NUMCOEFFS; j++)
+		{
+			cout << max_player->heuristic_coeffs[j] << " ";
 		}
 		players = createNewPlayers(players);
 	}

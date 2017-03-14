@@ -1,6 +1,7 @@
 #ifndef __COMMON_H___
 #define __COMMON_H___
 
+#include <queue>
 #include <cstdlib>
 #define NUMCOEFFS 64
 
