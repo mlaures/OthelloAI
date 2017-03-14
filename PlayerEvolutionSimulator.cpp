@@ -7,12 +7,13 @@
 #include <thread>
 #include <mutex>
 
-#define NUMPLAYERS 100
+#define NUMPLAYERS 128
 #define NTHREADS 16
 #define VARIABILITY 2
-#define PROB_MUTATE 0.03
-#define PROB_MIX 0.15
-#define NUMGENERATIONS 100
+#define PROB_VARIANCE .7
+#define PROB_MUTATE 0.005
+#define PROB_MIX 0.35
+#define NUMGENERATIONS 10000
 
 
 using namespace std;
@@ -63,7 +64,27 @@ vector<Player*> createNewPlayers(vector<Player*> &players)
 	for(int i = 0; i < NUMPLAYERS; i++)
 		player_weights[i] = players[i]->num_wins / total_wins;
 
+
+	/**
+	 * Elitism: keep the best player of the previous generation
+	 */
+	int max_wins = 0;
+	Player* max_player = nullptr;
 	for(int i = 0; i < NUMPLAYERS; i++)
+	{
+		if(players[i]->num_wins > max_wins)
+		{
+			max_wins = players[i]->num_wins;
+			max_player = players[i];
+		}
+	}
+	ret_players.push_back(max_player);
+
+	/**
+	 * Genetic recombination: generate the new players as a weighted-random
+	 * combination of the old.
+	 */
+	for(int i = 1; i < NUMPLAYERS; i++)
 	{
 		//TODO: rework to make heuristic a double array, and don't reallocate players
 		double* heuristics = new double[NUMCOEFFS];
@@ -88,15 +109,19 @@ vector<Player*> createNewPlayers(vector<Player*> &players)
 			{
 				heuristics[j] = getRandomPlayersHeuristic(players, player_weights, j);
 			}
-			if(random < 0.5)
+			if(random < PROB_VARIANCE)
 				heuristics[j] += fRand(-VARIABILITY, VARIABILITY);
 		}
 		Player* player = new Player(BLACK, heuristics, NUMCOEFFS);
 		ret_players.push_back(player);
 	}
 	for(int i = 0; i < NUMPLAYERS; i++)
-		delete players[i];
+	{
+		if(players[i] != ret_players[0])
+			delete players[i];
+	}
 	delete[] player_weights;
+	max_player->num_wins = 0;
 	return ret_players;
 }
 
@@ -186,13 +211,11 @@ int main(int argc, char** argv)
 		for(int i = 0; i < NTHREADS; i++)
 		{
 			t[i] = new thread(threadfunc, q, reset);
-			cout << "made thread " << i << endl;
 		}
 		for(int i = 0; i < NTHREADS; i++)
 		{
 			t[i]->join();
 			delete t[i];
-			cout << "deleted thread " << i << endl;
 		}
 		int max_wins = 0;
 		Player* max_player = nullptr;

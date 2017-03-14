@@ -3,9 +3,12 @@
 
 #include <queue>
 #include <cstdlib>
+#include <iostream>
 //#include <mutex>
 //#include <thread>
 #define NUMCOEFFS 64
+
+using namespace std;
 
 
 enum Side { 
@@ -27,6 +30,7 @@ public:
 
     void setX(int x) { this->x = x; }
     void setY(int y) { this->y = y; }
+    friend ostream& operator<<(ostream& os, const Move& mv);
 };
 
 #endif

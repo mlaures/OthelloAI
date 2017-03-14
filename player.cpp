@@ -1,10 +1,35 @@
 #include "player.hpp"
 
+#include <unordered_map>
+
+ostream& operator<<(ostream& os, const Move& mv)
+{
+    os << mv.x << "," << mv.y;
+    return os;
+}
+
 double fRand(double fMin, double fMax)
 {
     double f = (double)rand() / RAND_MAX;
     return fMin + f * (fMax - fMin);
 }
+//
+//void writeMapToFile(string filename, unordered_map<bitset<128>, Move> map)
+//{
+//	FILE* file = fopen(filename.c_str(), "w");
+//	if(!file)
+//		cout << "Something went wrong with opening the file to be written" << endl;
+//	for(auto it = map.begin(); it != map.end(); it++)
+//	{
+//		file << it->first << "=" << it->second << endl;
+//	}
+//	fclose(file);
+//}
+//
+//void readMapFromFile(string filename, unordered_map<bitset<128>, Move>)
+//{
+//
+//}
 
 /*
  * Constructor for the player; initialize everything here. The side your AI is
@@ -17,7 +42,8 @@ Player::Player(Side side) {
     board = new Board();
     this->side = side;
     this->opponentSide = (side == BLACK)? WHITE : BLACK;
-    this->heuristic_coeffs = new double[NUMCOEFFS]{39.2928, 12.6684, 70.5414, 58.5276, 70.9759, 53.456, 58.71, 52.0131, 68.3668, 87.6974, 46.347, 36.8787, 40.8381, 47.001, 36.7967, 58.9839, 23.5245, 1.765, 62.9877, 49.6765, 38.5423, 68.1263, 37.8112, 52.8047, 47.0454, 46.0186, 47.9441, 37.6486, 70.2449, 28.2655, 41.3637, 53.5852, 45.1353, 32.1717, 80.1915, 27.7968, 56.6192, 44.0209, 31.7398, 68.6455, 57.3332, 11.9536, 48.2346, 28.3595, 13.663, 35.9712, 70.3972, 10.9688, 59.5487, 25.9196, 5.37993, 72.2764, 56.764, 54.0235, 48.776, 44.0339, 67.5034, 57.6998, 48.3722, 10.9963, 48.7062, 81.0067, 62.7486, 56.7311};
+    this->heuristic_coeffs = new double[NUMCOEFFS]{84.7921, 69.7409, 52.4153, 20.0729, 72.9631, 92.5583, 40.5975, 74.0796, 47.9579, 39.6737, 44.7006, 10.812, 27.9405, 36.1708, 38.5422, 42.4619, 53.5101, 28.1238, 70.5108, 65.95, 37.3026, 66.9102, 38.0489, 39.6049, 51.8285, 56.5793, 75.8208, 33.0249, 59.2746, 33.5086, 56.4721, 75.1198, 93.1361, 7.86325, 45.5843, 69.9932, 36.827, 57.3591, 58.6928, 55.9449, 81.266, 51.0933, 30.167, 25.2655, 40.9258, 61.9236, 14.972, 62.9445, 44.4797, 61.2269, 41.9569, 56.5928, 63.6464, 28.6414, 59.3223, 59.9975, 70.7373, 18.6234, 89.4433, 60.8711, 58.1222, 76.171, 40.0565, 99.4255};
+	//new double[NUMCOEFFS]{39.2928, 12.6684, 70.5414, 58.5276, 70.9759, 53.456, 58.71, 52.0131, 68.3668, 87.6974, 46.347, 36.8787, 40.8381, 47.001, 36.7967, 58.9839, 23.5245, 1.765, 62.9877, 49.6765, 38.5423, 68.1263, 37.8112, 52.8047, 47.0454, 46.0186, 47.9441, 37.6486, 70.2449, 28.2655, 41.3637, 53.5852, 45.1353, 32.1717, 80.1915, 27.7968, 56.6192, 44.0209, 31.7398, 68.6455, 57.3332, 11.9536, 48.2346, 28.3595, 13.663, 35.9712, 70.3972, 10.9688, 59.5487, 25.9196, 5.37993, 72.2764, 56.764, 54.0235, 48.776, 44.0339, 67.5034, 57.6998, 48.3722, 10.9963, 48.7062, 81.0067, 62.7486, 56.7311};
 	num_wins = 0;
     /*
      * TODO: Do any initialization you need to do here (setting up the board,
@@ -116,7 +142,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 	 	}
 		delete copy;
 	}
-	for(int i = 0; i < avail_moves->size(); i++)
+	for(int i = 0; i < (int)avail_moves->size(); i++)
 	{
 		if(avail_moves->at(i) != best_move)
 			delete avail_moves->at(i);
@@ -177,7 +203,7 @@ double Player::nalphabeta(Side cside, Board* board, int depth, double ab[])
 			if (ab[1] <= ab[0])
 				break;
 		}
-		for(int i = 0; i < avail_moves->size(); i++)
+		for(int i = 0; i < (int)avail_moves->size(); i++)
 			delete avail_moves->at(i);
 		delete avail_moves;
 //		cerr << "better = " << better << endl;
