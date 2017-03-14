@@ -6,6 +6,7 @@
 #include "board.hpp"
 #include <limits>
 #include <cstdlib>
+#include <mutex>
 //#include <random>
 using namespace std;
 
@@ -44,6 +45,7 @@ public:
     double* heuristic_coeffs;
     // Used for PlayerEvolution
     int num_wins;
+    mutex playing;
 
     bool operator < (const Player& player) const
 	{
