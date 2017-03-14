@@ -4,8 +4,11 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <thread>
+#include <mutex>
 
 #define NUMPLAYERS 100
+#define NTHREADS 5
 #define VARIABILITY 2
 #define PROB_MUTATE 0.15
 #define PROB_MIX 0.15
@@ -14,11 +17,7 @@
 
 using namespace std;
 
-//double fRand(double fMin, double fMax)
-//{
-//    double f = (double)rand() / RAND_MAX;
-//    return fMin + f * (fMax - fMin);
-//}
+mutex qMutex;
 
 
 /**
@@ -101,35 +100,66 @@ vector<Player*> createNewPlayers(vector<Player*> &players)
 	return ret_players;
 }
 
-/*
-pair = queue.pop();
-pair[1] = player1;
-pair[2] = player2;
+void playOneRound(queue<pair<Player*, Player*>> queue,
+						pair<Player*, Player*> pair , Board* reset) {
+	Player* player1 = pair.first;
+	Player* player2 = pair.second;
 
-bool p1, p2;
-p1 = player1->playing.try_lock();
-p2 = player2->playing.try_lock();
+	bool p1, p2;
+	p1 = player1->playing.try_lock();
+	p2 = player2->playing.try_lock();
 
-if (p1 == true && p2 == true)
-{
-	play(player1, player2);
-	// any other stuff needed after finished playing
-} else if (p1)
-{
-	player1->playing.unlock();
-} else if (p2)
-{
-	player2->playing.unlock();
+	if (p1 && p2)
+	{
+		int win = play(player1, player2);
+		delete player1->board;
+		delete player2->board;
+		player1->board = reset->copy();
+		player2->board = reset->copy();
+		if(win == 0)
+			player1->num_wins++;
+		else if(win == 1)
+			player2->num_wins++;
+		// any other stuff needed after finished playing
+		player1->playing.unlock();
+		player2->playing.unlock();
+	} else
+	{
+		if (p1)
+		{
+			player1->playing.unlock();
+		} else if (p2)
+		{
+			player2->playing.unlock();
+		}
+
+		qMutex.lock();
+		queue.push(pair);
+		qMutex.unlock();
+	}
 }
 
-queue.push_back(pair);
-*/
+void threadfunc(queue<pair<Player*, Player*>> queue, Board* reset)
+{
+	while(true)
+	{
+		qMutex.lock();
+		if(queue.empty())
+			break;
+		pair<Player*, Player*> pair = queue.front();
+		queue.pop();
+		qMutex.unlock();
+		playOneRound(queue, pair, reset);
+	}
+}
 
 int main(int argc, char** argv)
 {
 	srand(time(NULL));
 	Board* reset = new Board();
 	vector<Player*> players;
+	thread **t = new thread *[NTHREADS];
+
 
 	// Generate random players for initialization
 	for(int i = 0; i < NUMPLAYERS; i++)
@@ -149,23 +179,9 @@ int main(int argc, char** argv)
 				q.push(make_pair(players[i], players[j]));
 			}
 		}
-		while(!q.empty())
+		for(int i = 0; i < NTHREADS; i++)
 		{
-			pair<Player*, Player*> pair_players = q.pop();
-			int win = play(pair_players.first, pair_players.second);
-			delete pair_players.first->board;
-			delete pair_players.second->board;
-			pair_players.first->board = reset->copy();
-			pair_players.second->board = reset->copy();
-			// player[i] = black, player[j] = white
-			if(win == 0)
-			{
-				pair_players.first->num_wins++;
-			}
-			else if(win == 1)
-			{
-				pair_players.second->num_wins++;
-			}
+			t[i] = new thread(threadfunc, q, reset);
 		}
 		int max_wins = 0;
 		Player* max_player = nullptr;
@@ -182,6 +198,7 @@ int main(int argc, char** argv)
 		{
 			cout << max_player->heuristic_coeffs[j] << " ";
 		}
+		cout << endl << endl;
 		players = createNewPlayers(players);
 	}
 	for(int i = 0; i < NUMPLAYERS; i++)

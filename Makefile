@@ -1,23 +1,23 @@
 CC          = g++
-CFLAGS      = -std=c++11 -Wall -pedantic -ggdb
+CFLAGS      = -std=c++11 -Wall -pedantic -ggdb -lpthread
 OBJS        = player.o board.o 
 PLAYERNAME  = icantdecide
 
 all: $(PLAYERNAME) testgame
 
 $(PLAYERNAME): $(OBJS) wrapper.o
-	$(CC) -o $@ $^
+	$(CC) -o $@ $^ $(CFLAGS)
 
 $(PLAYERNAME): player.hpp
 
 simulator: $(OBJS) PlayerEvolutionSimulator.o
-	$(CC) -o $@ $^
+	$(CC) -o $@ $^ $(CFLAGS)
 
 testgame: testgame.o
-	$(CC) -o $@ $^
+	$(CC) -o $@ $^ $(CFLAGS)
 
 testminimax: $(OBJS) testminimax.o
-	$(CC) -o $@ $^
+	$(CC) -o $@ $^ $(CFLAGS)
 
 %.o: %.cpp
 	$(CC) -c $(CFLAGS) -x c++ $< -o $@
