@@ -7,6 +7,7 @@
 #include <limits>
 #include <cstdlib>
 #include <mutex>
+#include <unordered_map>
 //#include <random>
 using namespace std;
 
@@ -43,6 +44,7 @@ public:
     Side opponentSide;
     Board* board;
     double* heuristic_coeffs;
+    unordered_map<bitset<128>, double> board_pos;
     // Used for PlayerEvolution
     int num_wins;
     mutex playing;

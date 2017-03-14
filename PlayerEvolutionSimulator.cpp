@@ -120,7 +120,6 @@ void playOneRound(queue<pair<Player*, Player*>> queue,
 			player1->num_wins++;
 		else if(win == 1)
 			player2->num_wins++;
-		// any other stuff needed after finished playing
 		player1->playing.unlock();
 		player2->playing.unlock();
 	} else
@@ -145,7 +144,10 @@ void threadfunc(queue<pair<Player*, Player*>> queue, Board* reset)
 	{
 		qMutex.lock();
 		if(queue.empty())
+		{
+			qMutex.unlock();
 			break;
+		}
 		pair<Player*, Player*> pair = queue.front();
 		queue.pop();
 		qMutex.unlock();

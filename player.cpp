@@ -127,8 +127,28 @@ double Player::nalphabeta(Side cside, Board* board, int depth, double ab[])
 	if(depth == 0 && this->testingMinimax)
 		return board->getScoreSimple(cside);
 	else if(depth == 0 && !this->testingMinimax)
-		return cside == WHITE ? -board->getScore(heuristic_coeffs, NUMCOEFFS)
-				: board->getScore(heuristic_coeffs, NUMCOEFFS);
+	{
+		// made a key for the map
+		bitset<128> key;
+		for (int i = 0; i < 64; i++)
+		{
+			if (board->black[i] == 1)
+				key.set(i);
+		}
+		for (int i = 0; i < 64; i++)
+		{
+			if (board->taken[i] == 1)
+				key.set(i + 64);
+		}
+
+		// if no key in map, make key and bucket
+		if (board_pos.count(key) == 0) {
+			double score = board->getScore(heuristic_coeffs, NUMCOEFFS);
+			board_pos[key] = score;
+		}
+
+		return cside == WHITE ? -board_pos[key] : board_pos[key];
+	}
 
 	vector<Move*>* avail_moves = board->getAvailableMoves(cside);
 	double better = -MAX_DOUBLE;

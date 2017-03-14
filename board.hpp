@@ -9,7 +9,11 @@
 #define BOARD_SIZE 64
 using namespace std;
 
+class Player;
+
 class Board {
+
+    friend class Player;
 
 private:
     bitset<BOARD_SIZE> black;
