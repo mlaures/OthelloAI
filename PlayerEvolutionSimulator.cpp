@@ -102,6 +102,30 @@ vector<Player*> createNewPlayers(vector<Player*> &players)
 	return ret_players;
 }
 
+/*
+pair = queue.pop();
+pair[1] = player1;
+pair[2] = player2;
+
+bool p1, p2;
+p1 = player1->playing.try_lock();
+p2 = player2->playing.try_lock();
+
+if (p1 == true && p2 == true)
+{
+	play(player1, player2);
+	// any other stuff needed after finished playing
+} else if (p1)
+{
+	player1->playing.unlock();
+} else if (p2)
+{
+	player2->playing.unlock();
+}
+
+queue.push_back(pair);
+*/
+
 int main(int argc, char** argv)
 {
 	srand(time(NULL));
