@@ -88,8 +88,8 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 		Board* copy = board->copy();
 		Move* temp_move = *it;
 		copy->doMove(temp_move, side);
-		double score = alphabeta(opponentSide, copy, MAX_DEPTH - 1,
-			-MAX_DOUBLE, MAX_DOUBLE);
+		double score = -negamax(opponentSide, copy, MAX_DEPTH - 1);
+//			-MAX_DOUBLE, MAX_DOUBLE);
 		if(score > best_score)
 	 	{
 	 		best_score = score;
@@ -155,11 +155,11 @@ double Player::negamax(Side cside, Board* board, int depth)
 double Player::alphabeta(Side cside, Board* board, int depth,
 	double alpha, double beta)
 {
-	if(depth == 0 && this->testingMinimax)
+	if(depth == 0) /*&& this->testingMinimax)*/
 		return board->getScoreSimple(cside);
-	else if(depth == 0 && !this->testingMinimax)
+	/*else if(depth == 0 && !this->testingMinimax)
 		return cside == WHITE ? -board->getScore() : board->getScore();
-
+*/
 	vector<Move*>* avail_moves = board->getAvailableMoves(cside);
 	if (avail_moves->size() != 0) 
 	{
@@ -187,7 +187,7 @@ double Player::alphabeta(Side cside, Board* board, int depth,
 			{
 				Board* copy = board->copy();
 				copy->doMove(*it, cside);
-				double score = alphabeta((Side)!cside, copy, depth-1, alpha, beta);
+				double score = -alphabeta((Side)!cside, copy, depth-1, alpha, beta);
 				better = min (better, score);
 				beta = min (beta, better);
 				if (beta <= alpha)

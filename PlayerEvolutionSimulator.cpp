@@ -5,7 +5,7 @@
 #include <vector>
 #include <algorithm>
 
-#define NUMPLAYERS 10
+#define NUMPLAYERS 30
 #define VARIABILITY 2
 #define PROB_MUTATE 0.15
 #define PROB_MIX 0.15

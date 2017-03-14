@@ -9,7 +9,7 @@
 //#include <random>
 using namespace std;
 
-#define MAX_DEPTH 5
+#define MAX_DEPTH 3
 #define MAX_DOUBLE numeric_limits<double>::max()
 #define LOWER 0
 #define UPPER 100
