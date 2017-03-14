@@ -122,35 +122,46 @@ void Player::setSide(Side side)
 	this->opponentSide = (side == BLACK)? WHITE : BLACK;
 }
 
+bitset<128> Player::makebitkey(Board* board)
+{
+	bitset<128> key;
+	for (int i = 0; i < 64; i++)
+	{
+		if (board->black[i] == 1)
+			key.set(i);
+	}
+	for (int i = 0; i < 64; i++)
+	{
+		if (board->taken[i] == 1)
+			key.set(i + 64);
+	}
+
+	return key;
+}
+
 double Player::nalphabeta(Side cside, Board* board, int depth, double ab[])
 {
 	if(depth == 0 && this->testingMinimax)
 		return board->getScoreSimple(cside);
 	else if(depth == 0 && !this->testingMinimax)
 	{
-		// made a key for the map
-		bitset<128> key;
-		for (int i = 0; i < 64; i++)
-		{
-			if (board->black[i] == 1)
-				key.set(i);
-		}
-		for (int i = 0; i < 64; i++)
-		{
-			if (board->taken[i] == 1)
-				key.set(i + 64);
-		}
+		bitset<128> key = makebitkey(board);
 
 		// if no key in map, make key and bucket
 		if (board_pos.count(key) == 0) {
-			double score = board->getScore(heuristic_coeffs, NUMCOEFFS);
-			board_pos[key] = score;
+			// double score = board->getScore(heuristic_coeffs, NUMCOEFFS);
+			Values position;
+			position.score = board->getScoreSimple(this->side);
+			position.bmoves = board->getAvailableMoves(this->side);
+			position.wmoves = board->getAvailableMoves((Side)!this->side);
+			board_pos[key] = position;
 		}
 
-		return cside == WHITE ? -board_pos[key] : board_pos[key];
+		return cside == WHITE ? -board_pos[key].score : board_pos[key].score;
 	}
 
 	vector<Move*>* avail_moves = board->getAvailableMoves(cside);
+	Move* better_move = nullptr;
 	double better = -MAX_DOUBLE;
 	if (avail_moves->size() != 0) 
 	{
@@ -160,7 +171,13 @@ double Player::nalphabeta(Side cside, Board* board, int depth, double ab[])
 			Board* copy = board->copy();
 			copy->doMove(*it, cside);
 			double score = -nalphabeta((Side)!cside, copy, depth-1, ab);
-			better = max (better, score);
+			// choose the best move and score
+			if (score > better)
+			{
+				better = score;
+				better_move = *it;
+			}
+			// using alpha beta, check if the move will be viable.
 			if (cside == this->side)
 			{
 				ab[0] = max (ab[0], better);
@@ -170,7 +187,15 @@ double Player::nalphabeta(Side cside, Board* board, int depth, double ab[])
 			}
 			if (ab[1] <= ab[0])
 				break;
+			
 		}
+		// make bitkey and store best move in this position
+			bitset<128> key = makebitkey(board);
+			if (cside == this->side)
+			{
+				board_pos[key].best = better_move;
+				board_pos[key].score = better;
+			}
 //		cerr << "better = " << better << endl;
 		return better;
 	} else {

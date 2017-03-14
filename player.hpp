@@ -11,7 +11,7 @@
 //#include <random>
 using namespace std;
 
-#define MAX_DEPTH 2
+#define MAX_DEPTH 3
 #define MAX_DOUBLE numeric_limits<double>::max()
 #define LOWER 0
 #define UPPER 100
@@ -25,6 +25,12 @@ double fRand(double fMin, double fMax);
 //	double s;
 //};
 
+struct Values {
+	double score;
+	Move* best;
+	vector<Move*>* bmoves, *wmoves;
+};
+
 class Player {
 
 public:
@@ -37,6 +43,7 @@ public:
     double negamax(Side side, Board* board, int depth);
     double nalphabeta(Side cside, Board* board, int depth, double* ab);
     void setSide(Side side);
+    bitset<128> makebitkey(Board* board);
 
     // Flag to tell if the player is running within the test_minimax context
     bool testingMinimax;
@@ -44,7 +51,7 @@ public:
     Side opponentSide;
     Board* board;
     double* heuristic_coeffs;
-    unordered_map<bitset<128>, double> board_pos;
+    unordered_map<bitset<128>, Values> board_pos;
     // Used for PlayerEvolution
     int num_wins;
     mutex playing;
