@@ -8,9 +8,9 @@
 #include <mutex>
 
 #define NUMPLAYERS 100
-#define NTHREADS 5
+#define NTHREADS 16
 #define VARIABILITY 2
-#define PROB_MUTATE 0.15
+#define PROB_MUTATE 0.03
 #define PROB_MIX 0.15
 #define NUMGENERATIONS 100
 
@@ -100,7 +100,7 @@ vector<Player*> createNewPlayers(vector<Player*> &players)
 	return ret_players;
 }
 
-void playOneRound(queue<pair<Player*, Player*>> queue,
+void playOneRound(queue<pair<Player*, Player*>>* queue,
 						pair<Player*, Player*> pair , Board* reset) {
 	Player* player1 = pair.first;
 	Player* player2 = pair.second;
@@ -134,20 +134,24 @@ void playOneRound(queue<pair<Player*, Player*>> queue,
 		}
 
 		qMutex.lock();
-		queue.push(pair);
+		queue->push(pair);
 		qMutex.unlock();
 	}
+//	cout << "q size: " << queue->size() << endl;
 }
 
-void threadfunc(queue<pair<Player*, Player*>> queue, Board* reset)
+void threadfunc(queue<pair<Player*, Player*>>* queue, Board* reset)
 {
 	while(true)
 	{
 		qMutex.lock();
-		if(queue.empty())
+		if(queue->empty())
+		{
+			qMutex.unlock();
 			break;
-		pair<Player*, Player*> pair = queue.front();
-		queue.pop();
+		}
+		pair<Player*, Player*> pair = queue->front();
+		queue->pop();
 		qMutex.unlock();
 		playOneRound(queue, pair, reset);
 	}
@@ -164,24 +168,31 @@ int main(int argc, char** argv)
 	// Generate random players for initialization
 	for(int i = 0; i < NUMPLAYERS; i++)
 	{
-		players.push_back(new Player(BLACK));
+		players.push_back(new Player(BLACK, true));
 	}
 	int num_generations = 0;
 	while(num_generations++ < NUMGENERATIONS)
 	{
-		queue<pair<Player*, Player*>> q;
+		queue<pair<Player*, Player*>>* q = new queue<pair<Player*, Player*>>();
 		for(int i = 0; i < NUMPLAYERS; i++)
 		{
 			for(int j = 0; j < NUMPLAYERS; j++)
 			{
 				if(i == j)
 					continue;
-				q.push(make_pair(players[i], players[j]));
+				q->push(make_pair(players[i], players[j]));
 			}
 		}
 		for(int i = 0; i < NTHREADS; i++)
 		{
 			t[i] = new thread(threadfunc, q, reset);
+			cout << "made thread " << i << endl;
+		}
+		for(int i = 0; i < NTHREADS; i++)
+		{
+			t[i]->join();
+			delete t[i];
+			cout << "deleted thread " << i << endl;
 		}
 		int max_wins = 0;
 		Player* max_player = nullptr;
@@ -192,13 +203,25 @@ int main(int argc, char** argv)
 				max_wins = players[i]->num_wins;
 				max_player = players[i];
 			}
-			cout << endl;
 		}
+		cout << "Current epoch: " << num_generations;
+		cout << " Max wins: " << max_wins << endl;
+		cout << "{";
 		for(int j = 0; j < NUMCOEFFS; j++)
 		{
-			cout << max_player->heuristic_coeffs[j] << " ";
+			cout << max_player->heuristic_coeffs[j];
+			if(j != NUMCOEFFS - 1)
+				cout << ", ";
 		}
-		cout << endl << endl;
+		cout << "}" << endl;
+		/*int sum = 0;
+		for(int i = 0; i < NUMPLAYERS; i++)
+		{
+			cout << "Number of wins of player " << i << ": " << players[i]->num_wins << endl;
+			sum += players[i]->num_wins;
+		}
+		cout << "sum = " << sum;*/
+		cout << endl << endl << endl;
 		players = createNewPlayers(players);
 	}
 	for(int i = 0; i < NUMPLAYERS; i++)

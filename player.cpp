@@ -17,11 +17,31 @@ Player::Player(Side side) {
     board = new Board();
     this->side = side;
     this->opponentSide = (side == BLACK)? WHITE : BLACK;
+    this->heuristic_coeffs = new double[NUMCOEFFS]{39.2928, 12.6684, 70.5414, 58.5276, 70.9759, 53.456, 58.71, 52.0131, 68.3668, 87.6974, 46.347, 36.8787, 40.8381, 47.001, 36.7967, 58.9839, 23.5245, 1.765, 62.9877, 49.6765, 38.5423, 68.1263, 37.8112, 52.8047, 47.0454, 46.0186, 47.9441, 37.6486, 70.2449, 28.2655, 41.3637, 53.5852, 45.1353, 32.1717, 80.1915, 27.7968, 56.6192, 44.0209, 31.7398, 68.6455, 57.3332, 11.9536, 48.2346, 28.3595, 13.663, 35.9712, 70.3972, 10.9688, 59.5487, 25.9196, 5.37993, 72.2764, 56.764, 54.0235, 48.776, 44.0339, 67.5034, 57.6998, 48.3722, 10.9963, 48.7062, 81.0067, 62.7486, 56.7311};
+	num_wins = 0;
+    /*
+     * TODO: Do any initialization you need to do here (setting up the board,
+     * precalculating things, etc.) However, remember that you will only have
+     * 30 seconds.
+     */
+}
+
+/*
+ * Constructor for the player; initialize everything here. The side your AI is
+ * on (BLACK or WHITE) is passed in as "side". The constructor must finish
+ * within 30 seconds.
+ */
+Player::Player(Side side, bool random) {
+    // Will be set to true in test_minimax.cpp.
+	testingMinimax = false;
+    board = new Board();
+    this->side = side;
+    this->opponentSide = (side == BLACK)? WHITE : BLACK;
     this->heuristic_coeffs = new double[NUMCOEFFS];
-   for(int i = 0; i < NUMCOEFFS; i++)
-   {
+	for(int i = 0; i < NUMCOEFFS; i++)
+	{
 		heuristic_coeffs[i] = fRand(LOWER, UPPER);
-   }
+	}
     num_wins = 0;
     /*
      * TODO: Do any initialization you need to do here (setting up the board,
@@ -94,9 +114,16 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 	 		best_score = score;
 	 		best_move = temp_move;
 	 	}
+		delete copy;
 	}
-
-
+	for(int i = 0; i < avail_moves->size(); i++)
+	{
+		if(avail_moves->at(i) != best_move)
+			delete avail_moves->at(i);
+	}
+	delete avail_moves;
+	board->doMove(best_move, side);
+    return best_move;
 	// double best_score = -MAX_DOUBLE;
 	// for(vector<Move*>::iterator it = avail_moves->begin();
 	// 		it != avail_moves->end(); ++it)
@@ -112,8 +139,6 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 	// 		best_move = temp_move;
 	// 	}
 	// }
-	board->doMove(best_move, side);
-    return best_move;
 }
 
 void Player::setSide(Side side)
@@ -148,12 +173,17 @@ double Player::nalphabeta(Side cside, Board* board, int depth, double ab[])
 			{
 				ab[1] = max (ab[1], better);
 			}
+			delete copy;
 			if (ab[1] <= ab[0])
 				break;
 		}
+		for(int i = 0; i < avail_moves->size(); i++)
+			delete avail_moves->at(i);
+		delete avail_moves;
 //		cerr << "better = " << better << endl;
 		return better;
 	} else {
+		delete avail_moves;
 		return nalphabeta((Side)!cside, board, depth-1, ab);
 	}
 }
